@@ -1,0 +1,4 @@
+User-agent: *
+Disallow: /c/
+Disallow: /api/
+Sitemap: https://pb-birthday-circle.pages.dev/sitemap.xml

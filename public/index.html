@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Birthday Circle · A shared birthday list for your group chat, free</title>
+<meta name="description" content="Make one link for your family, friends or team. Everyone adds their own birthday in 10 seconds, and everyone gets the whole list plus reminders in Google, Apple or Outlook Calendar. No app, no sign-up, free.">
+<link rel="canonical" href="https://pb-birthday-circle.pages.dev/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Birthday Circle">
+<meta property="og:title" content="Birthday Circle · never forget a birthday in your group">
+<meta property="og:description" content="One link for the group chat. Everyone adds their own birthday, everyone gets reminders in their calendar. No app, no sign-up.">
+<meta property="og:url" content="https://pb-birthday-circle.pages.dev/">
+<meta property="og:image" content="https://pb-birthday-circle.pages.dev/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#fff8f3">
+<link rel="icon" href="/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/icon-180.png">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="stylesheet" href="/app.css">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"Birthday Circle","url":"https://pb-birthday-circle.pages.dev/","applicationCategory":"LifestyleApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"A shared birthday list for a group: one link, everyone adds their own birthday, calendar reminders with no app or sign-up."}</script>
+</head>
+<body>
+<header class="top"><div class="wrap">
+  <a class="brand" href="/"><img src="/icon.svg" alt="" width="34" height="34">Birthday Circle</a>
+  <nav><a href="#how">How it works</a><a href="#faq">FAQ</a></nav>
+</div></header>
+
+<main class="wrap">
+  <section class="hero">
+    <div>
+      <h1>Never forget a birthday <span class="hl">in your group</span> again.</h1>
+      <p class="lead">Make one link and post it in your family, friends or team chat. Everyone adds their own birthday in 10 seconds. Everyone gets the whole list, with reminders in the calendar they already use.</p>
+      <ul class="ticks">
+        <li>No app, no sign-up, no email address</li>
+        <li>Works with Google, Apple and Outlook Calendar</li>
+        <li>Birth year optional, age hidden unless you choose</li>
+        <li>Free, with no ads</li>
+      </ul>
+      <div class="card preview" id="yourCircles" hidden>
+        <h3>Your circles</h3>
+        <ul class="mine-list" id="yourList"></ul>
+      </div>
+    </div>
+
+    <div class="card" id="create">
+      <h2>Start a birthday circle</h2>
+      <p class="muted small">Takes 20 seconds. You get a link to send to the group.</p>
+      <form id="createForm" novalidate>
+        <div class="field"><label for="circleName">Name of the group</label>
+          <input type="text" id="circleName" name="circle" maxlength="60" placeholder="e.g. Uni friends, The Smiths, Design team"></div>
+        <div id="meFields"></div>
+        <label class="check"><input type="checkbox" id="skipMe"> I'm only organising, I'll skip my own birthday</label>
+        <div class="error" id="createError" role="alert"></div>
+        <button class="btn block" id="createBtn" type="submit">Create the circle and get the link</button>
+      </form>
+    </div>
+  </section>
+
+  <section class="section" id="how">
+    <h2>How it works</h2>
+    <div class="steps">
+      <div class="card step"><div class="num">1</div><h3>Make a circle</h3><p class="muted">Give it a name like “Cousins” or “Office”, and add your own birthday.</p></div>
+      <div class="card step"><div class="num">2</div><h3>Post the link in the chat</h3><p class="muted">“Add your birthday here so we stop forgetting.” People tap it, type their name and date, done.</p></div>
+      <div class="card step"><div class="num">3</div><h3>Get reminded</h3><p class="muted">Everyone sees who's next, and can subscribe once to get every birthday in their calendar, including people who join later.</p></div>
+    </div>
+  </section>
+
+  <section class="section">
+    <h2>Made for every group you're in</h2>
+    <div class="grid2">
+      <div class="card"><h3>Family</h3><p class="muted">Cousins, aunts and grandparents in one list. Parents can add children, and anyone can add a grandparent who isn't in the chat.</p></div>
+      <div class="card"><h3>Friends</h3><p class="muted">Since Facebook stopped sending birthdays to your calendar, this is the easy way to keep them: everyone types their own.</p></div>
+      <div class="card"><h3>Work team</h3><p class="muted">A team birthday calendar without an HR tool. Post the link in Slack or Teams and subscribe in Outlook.</p></div>
+      <div class="card"><h3>Class, club or choir</h3><p class="muted">The class parents' birthday list, kept up to date by the parents themselves, not by one person with a spreadsheet.</p></div>
+    </div>
+  </section>
+
+  <section class="section faq" id="faq">
+    <h2>Questions</h2>
+    <details><summary>Does everyone need an account or the app?</summary><p>No. There is no app and no sign-up. The link is the circle: open it, type a first name and a date. Your phone remembers that the entry is yours so you can change it later.</p></details>
+    <details><summary>How do the reminders work?</summary><p>Tap “Add to my calendar” in the circle and choose Google, Apple (iPhone, Mac) or Outlook. Your calendar subscribes to the circle, so every birthday shows up as a yearly all-day event, and people who join later appear on their own. Google Calendar updates subscribed calendars every few hours; Apple and Outlook are similar.</p></details>
+    <details><summary>Who can see the birthdays?</summary><p>Only people who have the link. Links are long and random, circles are not listed anywhere and search engines are told not to index them. Your birth year is optional; if you give it, others only see your age if you tick “Show my age”.</p></details>
+    <details><summary>Can I add someone who isn't in the chat?</summary><p>Yes. Use “Add someone else” to add a child, a partner or a grandparent. You can edit or remove the people you added, and the person who made the circle can tidy up the whole list.</p></details>
+    <details><summary>What about 29 February?</summary><p>Leap-day birthdays show on 28 February in other years, in the list and in your calendar.</p></details>
+    <details><summary>Is it really free?</summary><p>Yes, with no ads and no tracking. We don't sell or share birthdays, and we never will. See the <a href="/privacy">privacy policy</a>.</p></details>
+  </section>
+</main>
+
+<footer class="foot">
+  <div>Birthday Circle · a shared birthday list for groups</div>
+  <div><a href="/privacy">Privacy</a><a href="/privacy#contact">Support</a></div>
+</footer>
+<script type="module" src="/js/home.js"></script>
+</body>
+</html>

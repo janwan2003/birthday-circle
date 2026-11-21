@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<!--META--><title>Birthday Circle</title><meta name="robots" content="noindex"><!--/META-->
+<meta name="theme-color" content="#fff8f3">
+<link rel="icon" href="/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/icon-180.png">
+<link rel="stylesheet" href="/app.css">
+</head>
+<body>
+<header class="top"><div class="narrow">
+  <a class="brand" href="/"><img src="/icon.svg" alt="" width="34" height="34">Birthday Circle</a>
+  <nav><a href="/" id="newLink">Start your own</a></nav>
+</div></header>
+
+<main class="narrow">
+  <div class="loading" id="loading">Loading the birthdays…</div>
+
+  <div id="notFound" hidden class="card" style="text-align:center">
+    <h2>This circle doesn't exist</h2>
+    <p class="muted">The link may be incomplete, or the circle was deleted by the person who made it.</p>
+    <a class="btn" href="/">Start a new birthday circle</a>
+  </div>
+
+  <div id="app" hidden>
+    <div class="circle-head">
+      <h1 id="circleName"></h1>
+      <div class="muted" id="circleCount"></div>
+    </div>
+
+    <div id="todayCard" class="card gold today-banner" hidden></div>
+
+    <div id="joinCard" class="card tint" hidden>
+      <h2 id="joinTitle">Add your birthday</h2>
+      <p class="muted small">So nobody in the group forgets it. No app, no sign-up.</p>
+      <form id="joinForm" novalidate>
+        <div id="joinFields"></div>
+        <div class="error" id="joinError" role="alert"></div>
+        <button class="btn block" id="joinBtn" type="submit">Add my birthday</button>
+      </form>
+      <p class="small muted" style="margin-top:12px">Already added yours on another phone? Open your personal link from there (in “More”, at the bottom).</p>
+    </div>
+
+    <div id="shareCard" class="card tint" hidden>
+      <h2 id="shareTitle">Now send the link to the group</h2>
+      <p class="muted small share-hint">The list fills up as people add their birthdays. Paste this in your group chat:</p>
+      <div class="share-text" id="shareText"></div>
+      <div class="btn-row">
+        <button class="btn" id="shareBtn" type="button">Share link</button>
+        <a class="btn whatsapp" id="waBtn" target="_blank" rel="noopener">WhatsApp</a>
+        <button class="btn ghost" id="copyBtn" type="button">Copy</button>
+      </div>
+    </div>
+
+    <div id="nextCard" class="card" hidden></div>
+
+    <div id="calCard" class="card teal" hidden>
+      <h2>Get reminders in your calendar</h2>
+      <p class="muted small">Subscribe once. Every birthday appears as a yearly event, and people who join later show up on their own.</p>
+      <div class="cal-buttons">
+        <a class="btn ghost" id="calGoogle" target="_blank" rel="noopener">Google Calendar</a>
+        <a class="btn ghost" id="calApple">Apple Calendar</a>
+        <a class="btn ghost" id="calOutlook" target="_blank" rel="noopener">Outlook</a>
+        <button class="btn ghost" id="calCopy" type="button">Copy calendar link</button>
+      </div>
+      <p class="hint">On Android, use Google Calendar. Calendars check for new birthdays every few hours.</p>
+    </div>
+
+    <div class="card" id="listCard">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:8px">
+        <h2 style="margin:0">Everyone's birthdays</h2>
+        <button class="btn ghost small" id="addOtherBtn" type="button">+ Add someone</button>
+      </div>
+      <div id="list"></div>
+    </div>
+
+    <div class="card gold" id="ownCard">
+      <h3>Make one for your other groups too</h3>
+      <p class="muted small">Family, work team, class or club: each gets its own link and its own calendar.</p>
+      <div class="btn-row">
+        <a class="btn ghost small" href="/?name=Family">Family</a>
+        <a class="btn ghost small" href="/?name=Work%20team">Work team</a>
+        <a class="btn ghost small" href="/?name=Friends">Friends</a>
+        <a class="btn ghost small" href="/">Other</a>
+      </div>
+    </div>
+
+    <details class="card" id="moreCard">
+      <summary><b>More</b></summary>
+      <div style="margin-top:14px">
+        <div id="personal" hidden>
+          <h3>Your personal link</h3>
+          <p class="muted small">Open it on another phone or computer to edit your entries there. Keep it to yourself.</p>
+          <button class="btn ghost small" id="personalCopy" type="button">Copy my personal link</button>
+          <hr style="border:0;border-top:1px solid var(--line);margin:18px 0">
+        </div>
+        <div id="adminBox" hidden>
+          <h3>You made this circle</h3>
+          <p class="muted small">You can rename it, edit or remove any entry, or delete the whole circle.</p>
+          <div class="btn-row">
+            <button class="btn ghost small" id="renameBtn" type="button">Rename</button>
+            <button class="btn ghost small danger" id="deleteBtn" type="button">Delete circle</button>
+          </div>
+          <hr style="border:0;border-top:1px solid var(--line);margin:18px 0">
+        </div>
+        <p class="small muted">Only people with the link can see this list. Circles nobody opens for over a year are deleted. <a href="/privacy">Privacy</a></p>
+      </div>
+    </details>
+  </div>
+</main>
+
+<dialog id="editDialog">
+  <form id="editForm" novalidate>
+    <h2 id="editTitle">Edit birthday</h2>
+    <div id="editFields"></div>
+    <div class="error" id="editError" role="alert"></div>
+    <div class="dialog-actions">
+      <button class="linkbtn danger" id="editRemove" type="button">Remove from list</button>
+      <span class="btn-row" style="flex:0 0 auto">
+        <button class="btn ghost small" id="editCancel" type="button">Cancel</button>
+        <button class="btn small" id="editSave" type="submit">Save</button>
+      </span>
+    </div>
+  </form>
+</dialog>
+
+<footer class="foot">
+  <div><a href="/">Birthday Circle</a><a href="/privacy">Privacy</a></div>
+</footer>
+<script type="module" src="/js/circle.js"></script>
+</body>
+</html>

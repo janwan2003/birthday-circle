@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Privacy · Birthday Circle</title>
+<meta name="description" content="What Birthday Circle stores, who can see it, and how to delete it.">
+<link rel="canonical" href="https://pb-birthday-circle.pages.dev/privacy">
+<link rel="icon" href="/icon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/app.css">
+</head>
+<body>
+<header class="top"><div class="wrap">
+  <a class="brand" href="/"><img src="/icon.svg" alt="" width="34" height="34">Birthday Circle</a>
+  <nav><a href="/">Start a circle</a></nav>
+</div></header>
+<main class="wrap prose">
+  <h1 style="font-size:40px">Privacy</h1>
+  <p class="muted">Last updated 21 November 2026.</p>
+  <p>Birthday Circle is a shared birthday list for groups. It is built to collect as little as possible: there are no accounts, no email addresses, no phone numbers, no contact imports, no ads and no tracking.</p>
+
+  <h2>What we store</h2>
+  <ul>
+    <li><b>The circle:</b> its name and when it was created and last opened.</li>
+    <li><b>Each birthday:</b> the name someone typed, the day and month, and the birth year only if they chose to give it, plus whether their age may be shown.</li>
+    <li><b>A device key:</b> your browser makes a random key for each circle and keeps it in its own storage. We store only a one-way hash of it, which lets you edit the entries you added. It does not identify you.</li>
+    <li><b>Abuse limits:</b> a one-way hash of your IP address with a counter, kept for at most one hour, so one visitor cannot flood the service.</li>
+  </ul>
+
+  <h2>Who can see it</h2>
+  <p>Anyone who has a circle's link can see its names and birthdays, and can subscribe to its calendar feed. Links contain a long random code, circles are not listed anywhere, and search engines are asked not to index them. Share the link only with the group it is meant for. A birth year is shown to others only if its owner ticks “Show my age”.</p>
+  <p>We never sell, rent or share the data, and we do not use it for advertising.</p>
+
+  <h2>Calendar subscriptions</h2>
+  <p>If you subscribe to a circle in Google, Apple or Outlook Calendar, that calendar service downloads the circle's birthdays from us every few hours. Their own privacy policies cover what they do with your calendar.</p>
+
+  <h2>Deleting</h2>
+  <ul>
+    <li>You can edit or remove any entry you added, at any time, with its Edit button.</li>
+    <li>The person who made a circle can remove any entry or delete the whole circle.</li>
+    <li>Circles that nobody opens or syncs for more than 400 days are deleted automatically.</li>
+  </ul>
+
+  <h2>Where it runs</h2>
+  <p>The site and its database run on Cloudflare (Pages, Functions and D1). Cloudflare processes requests on our behalf and keeps standard security logs.</p>
+
+  <h2 id="contact">Support and contact</h2>
+  <p>Questions, a problem, or a deletion request you can't do yourself: open an issue at <a href="https://github.com/janwan2003/birthday-circle/issues">github.com/janwan2003/birthday-circle/issues</a>. Please don't post a circle's link publicly; describe the circle instead.</p>
+</main>
+<footer class="foot"><div><a href="/">Birthday Circle</a><a href="/privacy">Privacy</a></div></footer>
+</body>
+</html>
