@@ -77,3 +77,4 @@ export async function onRequestGet(context) {
   if (parts.length === 1) return page(context, id);
   return new Response('Not found', { status: 404 });
 }
+export const onRequestHead = onRequestGet;
