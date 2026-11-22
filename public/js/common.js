@@ -77,11 +77,44 @@ export async function copy(text, msg = 'Copied') {
   toast(msg);
 }
 
-export async function share({ title, text, url }) {
+export async function share({ title, text, url, copied = 'Link copied. Paste it in your group chat.' }) {
+  const data = url ? { title, text, url } : { title, text };
   if (navigator.share) {
-    try { await navigator.share({ title, text, url }); return; } catch (e) { if (e && e.name === 'AbortError') return; }
+    try { await navigator.share(data); return; } catch (e) { if (e && e.name === 'AbortError') return; }
   }
-  await copy(`${text} ${url}`, 'Link copied. Paste it in your group chat.');
+  await copy(url ? `${text} ${url}` : text, copied);
+}
+
+// In-page replacement for confirm() and prompt(). Some in-app browsers (chat apps' webviews)
+// silently return false/null from the native dialogs, which made "Remove" and "Delete" do nothing.
+// ask({ title, text, okLabel, danger, input }) resolves to true / the typed text, or null if cancelled.
+let askDialog;
+export function ask({ title, text = '', okLabel = 'OK', danger = false, input = null }) {
+  if (!askDialog) {
+    askDialog = el('dialog', { id: 'askDialog', class: 'ask' });
+    document.body.append(askDialog);
+  }
+  return new Promise((resolve) => {
+    const field = input !== null ? el('input', { type: 'text', id: 'askInput', maxlength: '60', 'aria-label': title }) : null;
+    if (field) field.value = input;
+    const ok = el('button', { class: 'btn small' + (danger ? ' btn-danger' : ''), id: 'askOk', type: 'submit' }, okLabel);
+    const cancel = el('button', { class: 'btn ghost small', id: 'askCancel', type: 'button' }, 'Cancel');
+    const form = el('form', { method: 'dialog' },
+      el('h2', {}, title), text ? el('p', { class: 'muted' }, text) : null, field,
+      el('div', { class: 'dialog-actions' }, el('span', { class: 'btn-row end' }, cancel, ok)));
+    let result = null;
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      if (field && !field.value.trim()) { field.focus(); return; }
+      result = field ? field.value.trim() : true;
+      askDialog.close();
+    });
+    cancel.addEventListener('click', () => askDialog.close());
+    askDialog.onclose = () => resolve(result);
+    askDialog.replaceChildren(form);
+    askDialog.showModal();
+    if (field) { field.focus(); field.select(); }
+  });
 }
 
 // Fill the day / month selects of a birthday form and keep the day list valid for the month.

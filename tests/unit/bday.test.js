@@ -45,6 +45,9 @@ test('when text and possessive', () => {
   assert.equal(whenText(0), 'Today');
   assert.equal(whenText(1), 'Tomorrow');
   assert.equal(whenText(5), 'In 5 days');
+  assert.equal(whenText(10), 'In 10 days');
+  assert.equal(whenText(13), 'In 13 days');
+  assert.equal(whenText(14), 'In 2 weeks');
   assert.equal(whenText(21), 'In 3 weeks');
   assert.equal(possessive('James'), "James'");
   assert.equal(possessive('Sara'), "Sara's");

@@ -50,8 +50,8 @@ export function upcoming(members, today) {
 export function whenText(inDays) {
   if (inDays === 0) return 'Today';
   if (inDays === 1) return 'Tomorrow';
-  if (inDays < 7) return `In ${inDays} days`;
-  if (inDays < 14) return 'Next week';
+  // Exact days up to two weeks: "Next week" was wrong for, say, a Wednesday 10 days away.
+  if (inDays < 14) return `In ${inDays} days`;
   if (inDays < 60) return `In ${Math.round(inDays / 7)} weeks`;
   return `In ${Math.round(inDays / 30.4)} months`;
 }

@@ -62,9 +62,9 @@ input[type=text], input[type=number], select {
   appearance: none; -webkit-appearance: none;
 }
 select { background-image: linear-gradient(45deg, transparent 50%, var(--muted) 50%), linear-gradient(135deg, var(--muted) 50%, transparent 50%);
-  background-position: calc(100% - 20px) 22px, calc(100% - 14px) 22px; background-size: 6px 6px; background-repeat: no-repeat; padding-right: 34px; }
+  background-position: calc(100% - 18px) 22px, calc(100% - 12px) 22px; background-size: 6px 6px; background-repeat: no-repeat; padding-left: 12px; padding-right: 30px; }
 input:focus, select:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(217, 61, 101, 0.15); }
-.date-row { display: grid; grid-template-columns: 1fr 1.6fr 1.2fr; gap: 8px; }
+.date-row { display: grid; grid-template-columns: minmax(72px, 1fr) minmax(130px, 1.8fr) minmax(64px, 1fr); gap: 8px; }
 .check { display: flex; gap: 10px; align-items: flex-start; font-weight: 500; font-size: 15px; margin: 4px 0 14px; cursor: pointer; }
 .check input { width: 20px; height: 20px; margin: 1px 0 0; accent-color: var(--accent); flex: none; }
 .check.disabled { color: #b3a9b8; cursor: default; }
@@ -90,7 +90,16 @@ input:focus, select:focus { outline: none; border-color: var(--accent); box-shad
 .btn-row .btn { flex: 1 1 auto; }
 
 /* Landing */
-.hero { padding: 26px 0 30px; display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 44px; align-items: start; }
+.hero { padding: 26px 0 30px; display: grid; grid-template-columns: 1.1fr 0.9fr; grid-template-areas: "text form" "demo form"; column-gap: 44px; row-gap: 8px; align-items: start; }
+.hero-text { grid-area: text; }
+.hero #create { grid-area: form; }
+.demo-wrap { grid-area: demo; }
+.demo { max-width: 440px; padding: 18px 20px 8px; transform: rotate(-1.2deg); }
+.demo-head { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding-bottom: 8px; }
+.demo-head b { font-family: var(--display); font-size: 19px; margin-right: 8px; }
+.demo-head span { white-space: nowrap; }
+.demo .row:first-child { border-top: 0; }
+.pill { font-size: 12.5px; font-weight: 700; color: var(--teal); background: var(--teal-soft); border-radius: 99px; padding: 3px 10px; white-space: nowrap; }
 .hero .lead { margin-bottom: 18px; }
 .ticks { list-style: none; padding: 0; margin: 0 0 8px; }
 .ticks li { padding-left: 30px; position: relative; margin: 0 0 8px; font-size: 16.5px; }
@@ -104,7 +113,10 @@ input:focus, select:focus { outline: none; border-color: var(--accent); box-shad
 .step .num { width: 34px; height: 34px; border-radius: 50%; background: var(--accent); color: #fff; font-weight: 800; display: grid; place-items: center; margin-bottom: 10px; }
 .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
 .faq details { background: #fff; border: 1px solid var(--line); border-radius: 14px; padding: 14px 18px; margin: 0 0 10px; }
-.faq summary { font-weight: 700; cursor: pointer; }
+.faq summary { font-weight: 700; cursor: pointer; list-style: none; display: flex; justify-content: space-between; gap: 12px; }
+.faq summary::-webkit-details-marker { display: none; }
+.faq summary::after { content: "+"; color: var(--accent); font-size: 22px; line-height: 1; font-weight: 600; flex: none; }
+.faq details[open] summary::after { content: "−"; }
 .faq details p { margin: 10px 0 0; color: var(--muted); }
 .mine-list { list-style: none; padding: 0; margin: 0; }
 .mine-list a { display: flex; justify-content: space-between; padding: 10px 0; border-top: 1px solid var(--line); text-decoration: none; color: var(--ink); font-weight: 600; }
@@ -143,12 +155,22 @@ input:focus, select:focus { outline: none; border-color: var(--accent); box-shad
 #shareCard.compact .share-hint, #shareCard.compact .share-text { display: none; }
 #shareCard.compact .btn { font-size: 15px; min-height: 42px; padding: 9px 14px; }
 .cal-buttons { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
-.cal-buttons .btn { font-size: 15px; white-space: nowrap; }
+.cal-buttons .btn { font-size: 15px; white-space: nowrap; padding-left: 10px; padding-right: 10px; }
+.list-head { display: flex; justify-content: space-between; align-items: center; gap: 8px 10px; margin-bottom: 8px; flex-wrap: wrap; }
+.list-head h2 { margin: 0; }
+.brand, .top nav a { white-space: nowrap; }
 .toast { position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%); background: var(--ink); color: #fff; padding: 12px 18px; border-radius: 12px; font-weight: 600; z-index: 50; box-shadow: var(--shadow); max-width: calc(100% - 32px); }
 dialog { border: 0; border-radius: var(--radius); padding: 22px; width: min(480px, calc(100% - 24px)); box-shadow: 0 20px 60px rgba(0,0,0,.25); color: var(--ink); }
 dialog::backdrop { background: rgba(38, 28, 48, .45); }
 .dialog-actions { display: flex; gap: 10px; justify-content: space-between; align-items: center; margin-top: 6px; flex-wrap: wrap; }
+.dialog-actions > .btn-row { margin-left: auto; }
+.dialog-actions .btn-row .btn { flex: 0 0 auto; }
+dialog.ask { width: min(420px, calc(100% - 24px)); }
+dialog.ask input { margin: 4px 0 16px; }
+.btn-danger { background: #b3261e; }
+.btn-danger:hover { background: #8f1d17; }
 .danger { color: #b3261e; }
+#notFound { margin-top: 12px; }
 .loading { text-align: center; color: var(--muted); padding: 60px 0; }
 
 /* Legal */
@@ -156,10 +178,24 @@ dialog::backdrop { background: rgba(38, 28, 48, .45); }
 .prose h2 { margin-top: 26px; }
 
 @media (max-width: 860px) {
-  .hero { grid-template-columns: 1fr; gap: 20px; padding-top: 10px; }
+  .hero { grid-template-columns: 1fr; grid-template-areas: "text" "form" "demo"; row-gap: 20px; padding-top: 10px; }
+  .demo { transform: none; max-width: none; }
   .steps, .grid2 { grid-template-columns: 1fr; }
 }
 @media (max-width: 420px) {
   .card { padding: 18px; }
   .top nav a { margin-left: 12px; }
+}
+/* Small phones (iPhone SE, 320-360px): keep the header on one line and the date pickers readable. */
+@media (max-width: 360px) {
+  .narrow, .wrap { padding: 0 12px; }
+  .card { padding: 16px; }
+  .brand { font-size: 17px; gap: 8px; }
+  .lead { font-size: 17px; }
+  .brand img { width: 30px; height: 30px; }
+  .top nav a { font-size: 14px; margin-left: 10px; }
+  .date-row { grid-template-columns: minmax(72px, 1fr) minmax(130px, 1.7fr); }
+  .date-row [name=year] { grid-column: 1 / -1; }
+  .cal-buttons .btn { font-size: 14px; padding-left: 6px; padding-right: 6px; }
+  .btn-row .btn { padding-left: 12px; padding-right: 12px; }
 }

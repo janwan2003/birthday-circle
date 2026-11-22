@@ -1,4 +1,4 @@
-import { $, el, api, newToken, getToken, setToken, forget, remember, toast, copy, share, setupDateFields, birthdayFields } from './common.js';
+import { $, el, api, newToken, getToken, setToken, forget, remember, toast, copy, share, ask, setupDateFields, birthdayFields } from './common.js';
 import { upcoming, todayLocal, whenText, possessive, MONTHS, MONTHS_SHORT } from './bday.js';
 
 const id = location.pathname.split('/')[2] || '';
@@ -17,7 +17,8 @@ let token = getToken(id);
 let state = null;
 let justShared = false;
 let justJoined = false;
-try { justShared = sessionStorage.getItem('bc:new') === id; } catch {}
+// The full "send the link" card shows once after creating; a reload shows the compact one.
+try { justShared = sessionStorage.getItem('bc:new') === id; sessionStorage.removeItem('bc:new'); } catch {}
 
 const joinForm = $('#joinForm');
 $('#joinFields').innerHTML = birthdayFields('join');
@@ -65,12 +66,21 @@ function render() {
     const list = names.length === 1 ? names[0] : names.slice(0, -1).join(', ') + ' and ' + names.at(-1);
     const age = today.length === 1 && today[0].turns ? ` ${today[0].name} turns ${today[0].turns}.` : '';
     const wish = `Happy birthday ${list}! 🎂🎉`;
-    tc.replaceChildren(
-      el('div', { class: 'big', 'aria-hidden': 'true' }, '🎂'),
-      el('h2', {}, `It's ${names.length === 1 ? possessive(list) : list + "'s"} birthday today!`),
-      el('p', { class: 'muted' }, `Don't forget to say happy birthday.${age}`),
-      el('button', { class: 'btn', type: 'button', onclick: () => share({ title: wish, text: wish, url: '' }).catch(() => {}) }, 'Send a birthday wish')
-    );
+    if (today.every((p) => p.mine)) {
+      // The birthday person (or a parent who added the child) should not be told to wish themselves.
+      tc.replaceChildren(
+        el('div', { class: 'big', 'aria-hidden': 'true' }, '🎉'),
+        el('h2', {}, `Happy birthday, ${list}!`),
+        el('p', { class: 'muted' }, `Everyone in ${state.name} can see it's the big day today.${age}`)
+      );
+    } else {
+      tc.replaceChildren(
+        el('div', { class: 'big', 'aria-hidden': 'true' }, '🎂'),
+        el('h2', {}, `It's ${names.length === 1 ? possessive(list) : list + "'s"} birthday today!`),
+        el('p', { class: 'muted' }, `Don't forget to say happy birthday.${age}`),
+        el('button', { class: 'btn', type: 'button', id: 'wishBtn', onclick: () => share({ title: wish, text: wish, copied: 'Wish copied. Paste it in your group chat.' }).catch(() => {}) }, 'Send a birthday wish')
+      );
+    }
   }
 
   // Join form: only if this device has no entry yet
@@ -131,6 +141,7 @@ function render() {
       }
       const subBits = [whenText(p.next.inDays)];
       if (p.turns) subBits.push(`turns ${p.turns}`);
+      if (p.day === 29 && p.month === 2 && p.next.d === 28) subBits.push('born 29 Feb');
       out.push(
         el('div', { class: 'row' + (p.next.inDays === 0 ? ' is-today' : ''), 'data-name': p.name },
           el('div', { class: 'date' }, el('b', {}, p.next.d), el('span', {}, MONTHS_SHORT[p.next.m - 1].toUpperCase())),
@@ -160,7 +171,8 @@ joinForm.addEventListener('submit', async (e) => {
     state = await api(`circles/${id}/members`, { method: 'POST', body: p, token: ensureToken() });
     justJoined = true;
     render();
-    toast(`Added. Happy early birthday, ${p.name}!`);
+    const isToday = upcoming([p], todayLocal())[0].next.inDays === 0;
+    toast(isToday ? `Added. Happy birthday, ${p.name}! 🎉` : `Added. Happy early birthday, ${p.name}!`);
     $('#shareCard').scrollIntoView({ behavior: 'smooth', block: 'start' });
   } catch (err) {
     errBox.textContent = err.message;
@@ -193,6 +205,8 @@ editForm.addEventListener('submit', async (e) => {
   const p = editDate.read();
   const problem = editDate.check(p);
   if (problem) { errBox.textContent = problem; return; }
+  const save = $('#editSave');
+  save.disabled = true;
   try {
     if (editing === 'new') {
       state = await api(`circles/${id}/members`, { method: 'POST', body: p, token: ensureToken() });
@@ -205,11 +219,13 @@ editForm.addEventListener('submit', async (e) => {
     render();
   } catch (err) {
     errBox.textContent = err.message;
+  } finally {
+    save.disabled = false;
   }
 });
 $('#editRemove').addEventListener('click', async () => {
   if (!editing || editing === 'new') return;
-  if (!confirm(`Remove ${editing.name} from the list?`)) return;
+  if (!(await ask({ title: `Remove ${editing.name}?`, text: 'Their birthday leaves the list and everyone\'s calendar.', okLabel: 'Remove', danger: true }))) return;
   try {
     state = await api(`circles/${id}/members/${editing.id}`, { method: 'DELETE', token });
     dialog.close();
@@ -222,8 +238,8 @@ $('#editRemove').addEventListener('click', async () => {
 
 $('#personalCopy').addEventListener('click', () => copy(`${circleUrl}#k=${token}`, 'Personal link copied. Open it on your other device.'));
 $('#renameBtn').addEventListener('click', async () => {
-  const name = prompt('New name for the circle', state.name);
-  if (!name || !name.trim()) return;
+  const name = await ask({ title: 'Rename the circle', input: state.name, okLabel: 'Rename' });
+  if (!name) return;
   try {
     state = await api('circles/' + id, { method: 'PATCH', body: { name: name.trim() }, token });
     remember(id, state.name);
@@ -232,7 +248,7 @@ $('#renameBtn').addEventListener('click', async () => {
   } catch (err) { toast(err.message); }
 });
 $('#deleteBtn').addEventListener('click', async () => {
-  if (!confirm(`Delete “${state.name}” and every birthday in it, for everyone? This cannot be undone.`)) return;
+  if (!(await ask({ title: `Delete “${state.name}”?`, text: 'Every birthday in it is deleted for everyone, and calendars stop showing them. This cannot be undone.', okLabel: 'Delete for everyone', danger: true }))) return;
   try {
     await api('circles/' + id, { method: 'DELETE', token });
     forget(id);

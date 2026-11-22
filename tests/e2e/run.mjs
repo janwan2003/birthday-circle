@@ -38,10 +38,45 @@ async function person(label, opts, expected = []) {
     if (m.type() === 'error' && !expected.some((re) => re.test(m.text()))) errors.push(`${label}: ${m.text()}`);
   });
   page.on('pageerror', (e) => errors.push(`${label}: ${e.message}`));
-  page.on('dialog', (d) => (d.type() === 'prompt' ? d.accept('Uni friends 2026') : d.accept()));
+  // Native confirm()/prompt() must never appear: in-app browsers can silently refuse them.
+  page.on('dialog', (d) => { errors.push(`${label}: unexpected native ${d.type()} dialog`); d.dismiss(); });
   return { label, ctx, page };
 }
-const shot = (p, name) => p.screenshot({ path: path.join(SHOTS, name + '.png'), fullPage: true });
+const shot = (p, name, fullPage = true) => p.screenshot({ path: path.join(SHOTS, name + '.png'), fullPage });
+// Nothing may stick out sideways on a phone (a long name or link causing horizontal scroll).
+async function noSideScroll(page, what) {
+  const [sw, iw] = await page.evaluate(() => [document.documentElement.scrollWidth, window.innerWidth]);
+  assert.ok(sw <= iw, `${what}: page is ${sw}px wide in a ${iw}px viewport`);
+  // ...and no button or field pokes out of its card, and the header stays on one line.
+  const bad = await page.evaluate(() => {
+    const out = [];
+    for (const c of document.querySelectorAll('.card')) {
+      if (!c.offsetParent || c.closest('dialog')) continue;
+      const r = c.getBoundingClientRect();
+      for (const e of c.querySelectorAll('.btn, input, select, .share-text')) {
+        const q = e.getBoundingClientRect();
+        if (q.width && (q.right > r.right + 0.5 || q.left < r.left - 0.5)) out.push(`${e.id || e.className || e.tagName} outside its card`);
+      }
+    }
+    for (const s of document.querySelectorAll('select')) {
+      // the chosen text (e.g. "Month", "September") must fit beside the arrow
+      const cs = getComputedStyle(s);
+      const ctx = document.createElement('canvas').getContext('2d');
+      ctx.font = `${cs.fontWeight} ${cs.fontSize} ${cs.fontFamily}`;
+      const longest = Math.max(...[...s.options].map((o) => ctx.measureText(o.text).width));
+      const room = s.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
+      if (s.offsetParent && longest > room + 1) out.push(`#${s.id} too narrow (${Math.round(room)}px for ${Math.round(longest)}px)`);
+    }
+    const lh = document.querySelector('.list-head');
+    if (lh && lh.offsetParent && lh.getBoundingClientRect().height > 60) out.push('list heading and "+ Add someone" do not fit on one line');
+    const brand = document.querySelector('.brand');
+    if (brand && brand.getBoundingClientRect().height > 40) out.push('header brand wraps');
+    for (const a of document.querySelectorAll('.top nav a')) if (a.getBoundingClientRect().height > 30) out.push('header link wraps');
+    return out;
+  });
+  assert.deepEqual(bad, [], `${what}: layout problems`);
+}
+const SMALL = { viewport: { width: 320, height: 640 }, deviceScaleFactor: 2, isMobile: true, hasTouch: true };
 async function fillBirthday(page, prefix, { name, day, month, year, showAge }) {
   await page.fill(`#${prefix}Name`, name);
   await page.selectOption(`#${prefix}Month`, String(month));
@@ -63,12 +98,21 @@ try {
   step = 'landing';
   const desk = await person('desktop-visitor', DESKTOP);
   await desk.page.goto(BASE + '/');
+  await desk.page.waitForSelector('#demo:not([hidden]) #demoList .row');
+  assert.equal(await desk.page.locator('#demoList .row').count(), 4, 'example circle is filled');
+  assert.match(await desk.page.textContent('#demoList'), /Tomorrow · turns 80/);
   await shot(desk.page, 'desktop-landing');
+  await shot(desk.page, 'desktop-landing-fold', false);
 
   step = 'create';
   const anna = await person('Anna', PHONE);
   await anna.page.goto(BASE + '/');
   await shot(anna.page, 'phone-landing');
+  await noSideScroll(anna.page, 'landing 390px');
+  const small = await person('small-phone', SMALL);
+  await small.page.goto(BASE + '/');
+  await noSideScroll(small.page, 'landing 320px');
+  await shot(small.page, 'small-landing');
   await anna.page.click('#createBtn');
   assert.match(await anna.page.textContent('#createError'), /name/i);
   await anna.page.fill('#circleName', 'Uni friends');
@@ -85,6 +129,13 @@ try {
   assert.match(await anna.page.textContent('#nextCard'), /Anna/);
   assert.match(await anna.page.textContent('#nextCard'), /turns \d+/);
   await shot(anna.page, 'phone-created');
+  await noSideScroll(anna.page, 'circle 390px after create');
+  assert.equal(await anna.page.getAttribute('#shareCard', 'class'), 'card tint', 'full invite card right after creating');
+  // A reload is a later visit: the compact "Missing someone?" card, not "Now send the link" again
+  await anna.page.reload();
+  await anna.page.waitForSelector('#shareCard:not([hidden])');
+  assert.match(await anna.page.getAttribute('#shareCard', 'class'), /compact/);
+  assert.equal(await anna.page.textContent('#shareTitle'), 'Missing someone?');
 
   step = 'preview';
   let og = await (await fetch(circleUrl)).text();
@@ -103,7 +154,10 @@ try {
   await ben.page.click('#joinBtn');
   await ben.page.waitForSelector('#joinCard[hidden]', { state: 'attached' });
   assert.ok(await ben.page.isVisible('#shareCard'));
-  assert.match(await ben.page.textContent('#todayCard'), /Ben's birthday today/);
+  // Ben is the birthday person: he is congratulated, not told to wish himself a happy birthday
+  assert.match(await ben.page.textContent('#todayCard'), /Happy birthday, Ben!/);
+  assert.equal(await ben.page.locator('#wishBtn').count(), 0);
+  assert.match(await ben.page.textContent('.toast'), /Happy birthday, Ben/);
 
   await cleo.page.goto(circleUrl);
   await cleo.page.waitForSelector('#joinCard:not([hidden])');
@@ -126,6 +180,13 @@ try {
   await anna.page.waitForSelector('#list .row');
   const order = await names(anna.page);
   assert.equal(order[0], 'Ben', 'today first');
+  assert.match(await anna.page.textContent('#todayCard'), /It's Ben's birthday today!/);
+  assert.equal(await anna.page.locator('#wishBtn').count(), 1, 'others get the wish button');
+  const nextFebLeap = (() => { const y = now.getMonth() < 2 && !(now.getMonth() === 1 && now.getDate() > 28) ? now.getFullYear() : now.getFullYear() + 1; return (y % 4 === 0 && y % 100 !== 0) || y % 400 === 0; })();
+  const cleoRow = await anna.page.textContent('#list .row[data-name="Cleo"]');
+  if (nextFebLeap) assert.doesNotMatch(cleoRow, /born 29 Feb/);
+  else assert.match(cleoRow, /28\s*FEB[\s\S]*born 29 Feb/, 'leap-day birthday explains the 28 Feb date');
+  assert.match(await anna.page.textContent('#nextCard'), /In 10 days · /, 'exact days under two weeks');
   assert.equal(order.length, 4);
   assert.equal(await anna.page.textContent('#circleCount'), '4 birthdays');
   const danRow = await anna.page.textContent('#list .row[data-name="Dan"]');
@@ -152,7 +213,7 @@ try {
   step = 'add-other';
   await ben.page.click('#addOtherBtn');
   await fillBirthday(ben.page, 'edit', { name: 'Mia', day: 14, month: 6, year: 2019, showAge: true });
-  await shot(ben.page, 'phone-add-other');
+  await shot(ben.page, 'phone-add-other', false);
   await ben.page.click('#editSave');
   await ben.page.waitForSelector('#list .row[data-name="Mia"]');
   assert.match(await ben.page.textContent('#list .row[data-name="Mia"]'), /you added/);
@@ -181,6 +242,25 @@ try {
   assert.equal(await benLaptop.page.isVisible('#joinCard'), false);
   assert.equal(await benLaptop.page.locator('#list .edit').count(), 2);
   await shot(benLaptop.page, 'desktop-circle');
+  await noSideScroll(benLaptop.page, 'circle desktop');
+
+  step = 'long-name';
+  // A 40-character name with no spaces must wrap, not push the page sideways
+  await ben.page.click('#addOtherBtn');
+  await fillBirthday(ben.page, 'edit', { name: 'Maximiliana-Konstantinopolitanska-Wolfe', day: 3, month: 3 });
+  await ben.page.click('#editSave');
+  await ben.page.waitForSelector('#list .row[data-name^="Maximiliana"]');
+  await noSideScroll(ben.page, 'circle 390px with a long name');
+  await small.page.goto(circleUrl);
+  await small.page.waitForSelector('#joinCard:not([hidden])');
+  await noSideScroll(small.page, 'circle 320px');
+  await shot(small.page, 'small-circle');
+  await ben.page.click('#list .row[data-name^="Maximiliana"] .edit');
+  await ben.page.click('#editRemove');
+  await ben.page.waitForSelector('#askDialog[open]');
+  await shot(ben.page, 'phone-confirm', false);
+  await ben.page.click('#askOk');
+  await ben.page.waitForFunction(() => !document.querySelector('#list .row[data-name^="Maximiliana"]'));
 
   step = 'ics';
   const ics = await (await fetch(circleUrl + '/birthdays.ics')).text();
@@ -200,9 +280,14 @@ try {
   await anna.page.waitForSelector('#list .row');
   await anna.page.click('#moreCard summary');
   await anna.page.click('#renameBtn');
+  await anna.page.waitForSelector('#askDialog[open] #askInput');
+  assert.equal(await anna.page.inputValue('#askInput'), 'Uni friends');
+  await anna.page.fill('#askInput', 'Uni friends 2026');
+  await anna.page.click('#askOk');
   await anna.page.waitForFunction(() => document.querySelector('#circleName').textContent === 'Uni friends 2026');
   await anna.page.click('#list .row[data-name="Mia"] .edit');
   await anna.page.click('#editRemove');
+  await anna.page.click('#askOk');
   await anna.page.waitForFunction(() => !document.querySelector('#list .row[data-name="Mia"]'));
   // Organiser editing Dan keeps his hidden birth year
   await anna.page.click('#list .row[data-name="Dan"] .edit');
@@ -222,17 +307,27 @@ try {
   assert.match(await ben.page.textContent('#yourList'), /Uni friends/);
 
   step = 'delete';
+  // Cancelling the delete keeps the circle
   await anna.page.click('#deleteBtn');
+  await anna.page.click('#askCancel');
+  await anna.page.waitForSelector('#askDialog:not([open])', { state: 'attached' });
+  assert.equal((await fetch(circleUrl)).status, 200, 'cancel keeps the circle');
+  await anna.page.click('#deleteBtn');
+  await anna.page.click('#askOk');
   await anna.page.waitForURL(BASE + '/');
   const gone = await fetch(circleUrl);
   assert.equal(gone.status, 404);
   await cleo.page.reload();
   await cleo.page.waitForSelector('#notFound:not([hidden])');
+  await shot(cleo.page, 'phone-not-found', false);
   circleUrl = null;
 
   step = 'privacy';
   await desk.page.goto(BASE + '/privacy');
   assert.match(await desk.page.textContent('h1'), /Privacy/);
+  await shot(desk.page, 'desktop-privacy');
+  await small.page.goto(BASE + '/privacy');
+  await noSideScroll(small.page, 'privacy 320px');
 
   assert.deepEqual(errors, [], 'no console errors');
   console.log('E2E PASS', BASE);

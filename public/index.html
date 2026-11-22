@@ -31,7 +31,7 @@
 
 <main class="wrap">
   <section class="hero">
-    <div>
+    <div class="hero-text">
       <h1>Never forget a birthday <span class="hl">in your group</span> again.</h1>
       <p class="lead">Make one link and post it in your family, friends or team chat. Everyone adds their own birthday in 10 seconds. Everyone gets the whole list, with reminders in the calendar they already use.</p>
       <ul class="ticks">
@@ -46,12 +46,19 @@
       </div>
     </div>
 
+    <div class="demo-wrap">
+      <div class="card demo" id="demo" hidden aria-label="Example of a birthday circle">
+        <div class="demo-head"><div><b>The Smiths</b><span class="muted small">7 birthdays</span></div><span class="pill">In your calendar ✓</span></div>
+        <div id="demoList"></div>
+      </div>
+    </div>
+
     <div class="card" id="create">
       <h2>Start a birthday circle</h2>
       <p class="muted small">Takes 20 seconds. You get a link to send to the group.</p>
       <form id="createForm" novalidate>
         <div class="field"><label for="circleName">Name of the group</label>
-          <input type="text" id="circleName" name="circle" maxlength="60" placeholder="e.g. Uni friends, The Smiths, Design team"></div>
+          <input type="text" id="circleName" name="circle" maxlength="60" placeholder="e.g. The Smiths, Uni friends"></div>
         <div id="meFields"></div>
         <label class="check"><input type="checkbox" id="skipMe"> I'm only organising, I'll skip my own birthday</label>
         <div class="error" id="createError" role="alert"></div>

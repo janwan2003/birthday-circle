@@ -4,7 +4,7 @@ stage: launched
 priority: 4
 url: https://pb-birthday-circle.pages.dev
 repo: https://github.com/janwan2003/birthday-circle
-updated: 2026-11-21
+updated: 2026-11-22
 ---
 
 # birthday-circle
@@ -126,6 +126,22 @@ Verified 2026-11-21:
 - Screenshots checked by eye: landing (desktop), circle (phone, desktop), join form (phone), OG image, icon.
   Fixed: oversized invite card on return visits, wrapping calendar and "+ Add someone" buttons on phones.
 
+Quality pass 2026-11-22 (deploy 39ba2242, commit below):
+- Fixed: "Next week" shown for a birthday 10 days away (now exact days under 2 weeks); the birthday person was told
+  "Don't forget to say happy birthday" about themselves (now "Happy birthday, Ben!") and got "Happy early birthday" on
+  the day; the full "Now send the link" card came back on every reload after creating; Month picker cut "September" to
+  "Septemb" at 390 px and Day/Month showed "D"/"Montl" at 320 px; header, "Apple / iPhone" and "+ Add someone" overflowed
+  at 320 px; native confirm()/prompt() for Remove/Rename/Delete replaced by in-page dialogs (chat apps' in-app browsers can
+  silently refuse native dialogs); Back button left "Creating…" stuck; "Send a birthday wish" shared the page URL; edit
+  dialog buttons misaligned, Save could be double-tapped; 29 Feb people now show "born 29 Feb" beside the 28 Feb date.
+- Polish: example circle beside the form on the landing page (dates relative to today), FAQ +/− markers, product page
+  on GitHub Pages now shows three real phone screenshots (`tools/screens.mjs`, local server only) and "How it works".
+- E2E (`tests/e2e/run.mjs`) now also asserts: no native dialogs, compact invite card on reload, birthday-person banner,
+  leap-day label, "In 10 days", rename/remove/delete through the in-page dialog incl. cancel, a 40-character name, and on
+  landing, circle and privacy pages at 320/390/1280 px: no sideways scroll, no button or field outside its card, header
+  on one line, every select wide enough for its longest option. Passes locally and on production (2026-11-22 ~16:40 local);
+  prod D1 0 circles / 0 members afterwards (wrangler d1 COUNT). Unit 7/7.
+
 Not covered yet: real iPhone/Android devices, a real Google/Apple/Outlook subscription to the production feed (the
 links are built to each service's documented URL format but were not clicked through while signed in), WhatsApp/iMessage
 preview rendering, other languages, per-circle OG image, load beyond a handful of users.
@@ -137,8 +153,9 @@ preview rendering, other languages, per-circle OG image, load beyond a handful o
 
 ## Next steps
 
-1. Subscribe to a real production feed in Google Calendar (signed in, via Claude-in-Chrome) and Apple Calendar; confirm events,
-   the leap-day rule and refresh after a new join. This is the core promise and is untested end to end.
+1. Operator check still open (inbox 2026-11-21): subscribe to a real production feed in Google Calendar (signed in, via Claude-in-Chrome) and Apple Calendar; confirm events,
+   the leap-day rule and refresh after a new join. This is the core promise and is untested end to end. No Claude-in-Chrome
+   tools were loaded in the 2026-11-22 session, so it is still unchecked.
 2. Per-circle OG image (names of the next 3 birthdays as a calendar card) so the chat preview shows the list itself.
 3. Season hook: a "Family birthday calendar 2027" printable/PDF view of the circle (New Year is when people set this up).
 4. SEO landing pages for the searches this serves: "family birthday calendar", "team birthday list", "class birthday
@@ -159,3 +176,6 @@ printable family birthday calendar (print-on-demand), and gift ideas. Never sell
   launched Birthday Circle on Pages + D1 (pb-birthday-circle), GitHub repo + Pages product page, Search Console verified
   + sitemap. Verified: unit 7/7, Chromium e2e passes locally and on prod deploy 84e1496c, prod feed parsed by `icalendar`,
   local rate limit 429 on the 21st create, screenshots at 390px and 1280px checked.
+- 2026-11-21 review: kept p4. live URL 200 with 0 console errors in headless Chromium at 390 px, Search Console 0 impressions 2026-11-01→11-21, prod D1 0 rows in every table (Cloudflare D1 API, 19:20 UTC). Under 21 days live, so no traction verdict. Evergreen and the calendar feed gives a reason to stay.
+- 2026-11-22 review: kept p4. URL 200, 0 console errors (headless Chromium, 390 px, 2026-11-22 ~03:40 UTC); Search Console 0 impressions 11-01→11-22; prod D1 0 rows in every data table (Cloudflare D1 API, read-only COUNT). Under 21 days live, so no traction verdict.
+- 2026-11-22 builder (quality): fixed 11 defects found from screenshots and code reading (wrong "Next week", birthday person told to wish themselves, truncated Month/Day pickers at 390/320 px, overflowing buttons at 320 px, native confirm/prompt, stale invite card, stuck Back button, wish shared the URL, and more; list in Status). Added landing example circle and real screenshots on the product page. Verified: unit 7/7; e2e with new layout/overflow checks passes locally and on prod deploy 39ba2242; prod D1 0/0 after; screenshots checked at 320, 390 and 1280 px.

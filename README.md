@@ -13,5 +13,6 @@ Cloudflare Pages + Functions + D1 (`pb-birthday-circle`), no build step.
     node --test tests/unit/*.test.js
     BASE=http://127.0.0.1:18931 node tests/e2e/run.mjs     # real Chromium, phone + desktop
     node tools/render-images.mjs                            # og.png + icons
+    BASE=http://127.0.0.1:18931 node tools/screens.mjs      # product-page screenshots (docs/screens, local only)
     npx wrangler pages deploy --branch main                 # needs CLOUDFLARE_* from the studio .env
     python3 scripts/gsc.py status                           # Search Console

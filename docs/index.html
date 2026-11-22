@@ -11,14 +11,32 @@
 <meta property="og:image" content="https://pb-birthday-circle.pages.dev/og.png">
 <link rel="icon" href="icon.svg" type="image/svg+xml">
 <link rel="stylesheet" href="app.css">
+<style>
+.shots { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin: 28px 0; }
+.shots figure { margin: 0; }
+.shots img { width: 100%; height: auto; border-radius: 18px; border: 1px solid #f0e4dc; box-shadow: 0 10px 28px rgba(50,20,40,.08); }
+.shots figcaption { font-size: 14px; color: #6c6276; margin-top: 8px; text-align: center; }
+.prose ol { padding-left: 22px; } .prose li { margin-bottom: 6px; }
+@media (max-width: 700px) { .shots { grid-template-columns: 1fr 1fr; } .shots figure:last-child { display: none; } }
+</style>
 </head>
 <body>
-<header class="top"><div class="wrap"><a class="brand" href="./"><img src="icon.svg" alt="" width="34" height="34">Birthday Circle</a></div></header>
-<main class="wrap prose">
+<header class="top"><div class="wrap" style="max-width:960px"><a class="brand" href="./"><img src="icon.svg" alt="" width="34" height="34">Birthday Circle</a></div></header>
+<main class="wrap prose" style="max-width:960px">
   <h1 style="font-size:44px">A shared birthday list for your group chat</h1>
   <p class="lead">Make one link for your family, friends or team. Everyone adds their own birthday in 10 seconds, and everyone gets the whole list plus reminders in Google, Apple or Outlook Calendar. No app, no sign-up, free.</p>
   <p><a class="btn" href="https://pb-birthday-circle.pages.dev/">Open Birthday Circle</a></p>
-  <img src="og.png" alt="Birthday Circle: a list of upcoming birthdays in a group" style="width:100%;max-width:720px;border-radius:18px;border:1px solid #f0e4dc;margin:24px 0">
+  <div class="shots">
+    <figure><img src="screens/phone-circle.jpg" alt="A family circle on a phone: next birthday and calendar buttons" width="390" height="844" loading="lazy"><figcaption>Who's next, and one-tap calendar subscribe</figcaption></figure>
+    <figure><img src="screens/phone-list.jpg" alt="The family's birthday list grouped by month" width="390" height="844" loading="lazy"><figcaption>Everyone's birthdays, soonest first</figcaption></figure>
+    <figure><img src="screens/phone-join.jpg" alt="Opening the link: add your name and birthday" width="390" height="844" loading="lazy"><figcaption>Joining takes 10 seconds, no sign-up</figcaption></figure>
+  </div>
+  <h2>How it works</h2>
+  <ol>
+    <li>Make a circle for your family, friends or team and add your own birthday.</li>
+    <li>Post the link in the group chat. Everyone opens it and types their own name and birthday.</li>
+    <li>Everyone sees who's next and can subscribe once in Google, Apple or Outlook Calendar. People who join later appear on their own.</li>
+  </ol>
   <h2>Privacy</h2>
   <p>No accounts, no email addresses, no tracking, no ads. Birth year is optional and hidden unless you choose to show your age. Read the full <a href="https://pb-birthday-circle.pages.dev/privacy">privacy policy</a>.</p>
   <h2 id="support">Support</h2>
