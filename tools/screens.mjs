@@ -39,7 +39,6 @@ await shoot(PHONE, `${BASE}/c/${id}`, 'phone-list.jpg', { ...asEmma, after: (p) 
 await shoot(PHONE, `${BASE}/c/${id}`, 'phone-circle.jpg', asEmma);
 // Phone: a new relative opening the link
 await shoot(PHONE, `${BASE}/c/${id}`, 'phone-join.jpg');
-await shoot({ viewport: { width: 1280, height: 800 } }, `${BASE}/`, 'desktop-home.jpg');
 
 await api(`circles/${id}`, null, tok(0), 'DELETE');
 await browser.close();
